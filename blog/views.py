@@ -8,9 +8,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def get_ip(request):
+  from django.http import HttpResponse
+  return HttpResponse(request.META['REMOTE_ADDR'])
+
+
 def index(request):
     # posts = Post.objects.all()
-    posts = Post.objects.filter(published_at__lte=timezone.now())
+    posts = (
+        Post.objects.filter(published_at__lte=timezone.now())
+        .select_related("author")
+        # .only("title", "summary", "content", "author", "published_at", "slug")
+        )
     logger.debug("Got %d posts", len(posts))
     return render(request, "blog/index.html", {"posts": posts})
 
